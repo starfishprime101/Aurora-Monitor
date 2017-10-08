@@ -4,13 +4,14 @@ import numpy as np
 import time
 import array
 import multiprocessing
+import obspy
 
 from array import array
 from datetime import datetime
 from datetime import timedelta
 
 from scipy import signal
-
+##
 from obspy.imaging.spectrogram import spectrogram
 from obspy.signal.filter import bandpass, lowpass, highpass
 from obspy.imaging.cm import obspy_sequential
@@ -555,34 +556,62 @@ def z_simplePlot(tr,lowCut, highCut):
     simplePlot(tr, lowCut, highCut)
 #---------------------------ooo0ooo---------------------------
 
-st1 = read("Data/Day_2.mseed")
-st1.detrend(type='demean')
+##st5 = read("plots/2017_10_5.mseed")
+##st4 = read("plots/2017_10_4.mseed")
+##st3 = read("plots/2017_10_3.mseed")
+#st2 = read("plots/2017_10_2.mseed")
+st = obspy.read("plots/2017_10_1.mseed")
+st += obspy.read("plots/2017_10_2.mseed")
+st += obspy.read("plots/2017_10_3.mseed")
+st += obspy.read("plots/2017_10_4.mseed")
+st += obspy.read("plots/2017_10_5.mseed")
 
-tr2=st1[0].copy()
+print(st)
+st.resample(0.40)
+print('done resampling')
 
-lowCut=0.01
-highCut=10.0
+st.merge(method=1, interpolation_samples=2, fill_value='interpolate')
+print('done merging')
 
+print(st)
+st.plot()
 
-#z_plotMany()
-#z_plotPeriodgram((tr,lowCut, highCut))
-
-#z_plotBands(tr2)
-
-tr=st1[0].copy()
-z_plotDayPlot(tr,lowCut, highCut)
-
-tr=st1[0].copy()
-z_simplePlot(tr,lowCut, highCut)
+st.sort(['starttime'])
+# start time in plot equals 0
+dt = st[0].stats.starttime.timestamp
+#st.detrend(type='demean')
 
 
-z_DayPlotAcousticPower(tr, 5.0, lowCut, highCut)
-#z_wavelets(tr1,lowCut, highCut)
+##
+tr=st[0].copy()
+tr.detrend(type='demean')
+tr.plot()
 
-tr=st1[0].copy()
-z_spectrum(tr,lowCut, highCut)
+tr.spectrogram(log=True, title='BW.RJOB ' + str(st[0].stats.starttime))
+##lowCut=1.0/200000
+##highCut=0.1
+##z_spectrum(tr,lowCut, highCut)
+##
+##
+###z_plotMany()
+###z_plotPeriodgram((tr,lowCut, highCut))
+##
+###z_plotBands(tr2)
+##
+##tr=st1[0].copy()
+##z_plotDayPlot(tr,lowCut, highCut)
+##
+##tr=st1[0].copy()
+##z_simplePlot(tr,lowCut, highCut)
+##
+##
+##z_DayPlotAcousticPower(tr, 5.0, lowCut, highCut)
+###z_wavelets(tr1,lowCut, highCut)
+##
+##tr=st1[0].copy()
 
-        
+##
+##        
 
 #plotDayplot(st,0.01, 15.0)
 #plotDayplot(st2,0.01, 15.0)
@@ -658,173 +687,4 @@ z_spectrum(tr,lowCut, highCut)
 #---------------------------ooo0ooo---------------------------
 #---------------------------ooo0ooo---------------------------
 #---------------------------ooo0ooo---------------------------
-
-#def plotBands(st):
-#
-#    N = len(st[0].data)
-#
-#    samplingFreq=st[0].stats.sampling_rate
-#
-#    Data0=st[0].data
-#
-#    lowCut1 = 0.001
-#    highCut1 = 2.0
-#    Data1= st[0]
-#    #Data1 = bandpass(st[0].data, lowCut1, highCut1, samplingFreq, corners=4, zerophase=True)
-#    #Data1.filter('bandpass', lowCut1, highCut1, samplingFreq, corners=4, zerophase=True)
-#    Data1.filter('bandpass', freqmin=lowCut1, freqmax=highCut1, corners=4, zerophase=True)
-#
-#
-#    lowCut1 = 0.001
-#    highCut1 = 2.0
-#    Data1 = bandpass(st[0].data, lowCut1, highCut1, samplingFreq, corners=4, zerophase=True)
-#   
-#    lowCut2 = 2.0
-#    highCut2 = 5.0
-#    Data2= bandpass(st[0].data, lowCut2, highCut2, samplingFreq, corners=4, zerophase=True)
-#
-#    lowCut3 = 05.0
-#    highCut3 = 10.0
-#    Data3= bandpass(st[0].data, lowCut3, highCut3, samplingFreq, corners=4, zerophase=True)
-#
-#    lowCut4 = 10.0
-#    highCut4 = 18.0
-#    Data4= bandpass(st[0].data, lowCut4, highCut4, samplingFreq, corners=4, zerophase=True)
-#
-#
-#    x=np.linspace(1, (N/st[0].stats.sampling_rate), N)
-#    x = np.divide(x, 60)
-#
-#    TitleString=('A: Raw  B:' + str(lowCut1)+'-' +str(highCut1) + ' Hz  C:' + str(lowCut2)+'-'
-#               +str(highCut2) + ' Hz  D:' + str(lowCut3)+'-' +str(highCut3) + ' Hz  E'+ str(lowCut4)+'-' +str(highCut4) + ' Hz')
-#
-#    fig=plt.figure()
-#    #fig.canvas.set_window_title('start U.T.C. - '+ startDT)
-#    fig.canvas.set_window_title('start U.T.C. - '+ str(st[0].stats.starttime))
-#
-#
-#    plt.subplots_adjust(hspace=0.001)
-#    gs = gridspec.GridSpec(5, 1 )
-#
-#    ax0 = plt.subplot(gs[0])
-#    ax0.plot(x, Data0, label='unfiltered')
-#    #ax0.legend('Raw Data', loc='upper right')
-#
-#
-#    ax1 = plt.subplot(gs[1], sharex=ax0) 
-#    ax1.plot(x, Data1, label= (str(lowCut1) +'-' + str(highCut1) +'Hz'))
-#
-#
-#    ax2 = plt.subplot(gs[2], sharex=ax0) 
-#    ax2.plot(x, Data2, label='unfiltered')
-#
-#
-#    ax3 = plt.subplot(gs[3], sharex=ax0) 
-#    ax3.plot(x, Data3, label='unfiltered')
-#
-#    ax4 = plt.subplot(gs[4], sharex=ax0) 
-#    ax4.plot(x, Data4, label='unfiltered')
-#
-#    xticklabels = ax0.get_xticklabels() + ax1.get_xticklabels() + ax2.get_xticklabels()
-#    plt.setp(xticklabels, visible=False)
-#
-#    ax4.set_xlabel(r'$\Delta$t - min', fontsize=12)
-#
-#
-#
-#    fig.tight_layout()
-#    fig.show()
-#
-#    #---------------------------ooo0ooo---------------------------
-
-    #---------------------------ooo0ooo---------------------------
-#def plotRaw(Data, samplingFreq):
-#  plt.plot(Data)
-#  plt.ylabel('Pressure Pa')
-#  plt.grid(True)
-#
-#    mean_removed = np.ones_like(Data)*np.mean(Data)
-#    Data2 = Data - mean_removed
-#
-#    lowCut = 0.2
-#    highCut = 10.0 
-#    Data2 =butter_bandpass_filter(Data, lowCut, highCut, samplingFreq, order=3)
-#
-#    fig=plt.figure(figsize=(8, 8))
-#
-#    gs = gridspec.GridSpec(2, 1, height_ratios=[1, 1] )
-#
-#    ax0 = plt.subplot(gs[0])
-#    ax0.plot(Data)
-#    ax0.set_ylabel(r'Pressure Pa')
-#
-#    ax1 = plt.subplot(gs[1]) 
-#    ax1.plot(Data2)
-#    ax1.set_ylabel(r'Pressure Pa')
-#
-#    fig.tight_layout()
-#    fig.show()
-#
-#    plt.show()
-
-
-
-#def plotSpectrogram(tr1):
-#    
-#    Data=tr1[0].data
-#    
-#
-#    N = len(Data) # Number of samplepoints
-#    xN=np.linspace(1, (N/st[0].stats.sampling_rate), N)
-#    #xN = np.divide(xN, 60)
-#    t1 = np.divide(xN, (st[0].stats.sampling_rate*60))
-#    #tr1.filter('bandpass', freqmin=lowCut, freqmax=highCut, corners=4, zerophase=True)
-#
-#
-#    fig = plt.figure()
-#    fig.canvas.set_window_title('start U.T.C. - '+ str(st[0].stats.starttime))
-#    ax1 = fig.add_axes([0.1, 0.75, 0.7, 0.2]) #[left bottom width height]
-#    ax2 = fig.add_axes([0.1, 0.1, 0.7, 0.60], sharex=ax1)
-#    ax3 = fig.add_axes([0.83, 0.1, 0.03, 0.6])
-#    #ax2.set_ylim([1.0,3.0])
-#
-#    
-#  t = np.arange(spl1[0].stats.N) / spl1[0].stats.sampling_rate
-#    ax1.plot(xN, Data, 'k')
-#
-#    #ax,spec = spectrogram(Data, samplingFreq, show=False, axes=ax2)
-#
-#    ax = spectrogram( Data, st[0].stats.sampling_rate, log=True, show=False, axes=ax2)
-#    mappable = ax2.images[0]
-#    plt.colorbar(mappable=mappable, cax=ax3)
-#
-#    ax1.set_ylabel(r'$\Delta$ P - Pa')
-#    ax2.set_ylabel(r'f - Hz', fontsize=14)
-#    ax2.set_xlabel(r'$\Delta$t - s', fontsize=12)
-#    #ax2.set_ylim([0.0,10])
-#    ax2.set_ybound(lower=None, upper=10.0)
-#
-#    fig.show()
-#---------------------------ooo0ooo---------------------------
-#def conVertToMiniSeed(Data):
-#    # Convert to NumPy character array
-#    # data1 = np.fromstring(Data, dtype='|S1')
-#    data1=Data
-#    # Fill header attributes
-#    stats = {'network': 'BW', 'station': 'RJOB', 'location': '',
-#           'channel': 'WLZ', 'npts': len(data1), 'sampling_rate': 0.1,
-#           'mseed': {'dataquality': 'D'}}
-#    # set current time
-#    stats['starttime'] = UTCDateTime()
-#    st = Stream([Trace(data=data1, header=stats)])
-#    # write as ASCII file (encoding=0)
-#    st.write("weather.mseed",format='MSEED',  encoding=4, reclen=256)
-#
-#    # Show that it worked, convert NumPy character array back to string
-#    st1 = read("weather.mseed")
-#
-#    print(st1[0].stats)
-#    new1=np.array(st[0].data)
-#
-#    plotBands(new1, 38.0, 0)
 

@@ -1,8 +1,0 @@
-mSens = 0.118
-cSens = 14.353
-
-Bfield=(((1000000.0/freq)-cSens)/mSens)/10.0
-
-typically
-
-
