@@ -2,7 +2,7 @@
 
 import os
 
-home_directory = '/home/GeoPhysics'
+home_directory = '/home/geophysics/station'
 # replace with home directory of application
 
 # below are station parameters for your station. see SEED manual for
